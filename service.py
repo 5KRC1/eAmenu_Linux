@@ -43,7 +43,7 @@ def get_mon(date):
     return monday
 
 def send_mail(message):
-    # requests.post("https://api.dasadweb.tk/api/eAmail", data={"message": message})
+
     print(message)
     
 def init_school_info():
