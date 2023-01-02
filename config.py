@@ -18,19 +18,13 @@ Configuration Of Your eAsistent
     "Odjava" - odjava
 """
 
-# DEFAULT = {
-#         "username": "",
-#         "password": "",
-
-#         "disliked_foods": [],
-#         "selected_menu": "",
-#         }
-
 DEFAULT = {
-        "username": "skrjancmatic14@gmail.com",
-        "password": "Ririn#14",
+        "username": "",
+        "password": "",
 
-        "disliked_foods": ["hrenovko"],
-        "selected_menu": "2",
+        "disliked_foods": [],
+        "selected_menu": "",
         }
+
+
 
