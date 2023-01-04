@@ -18,3 +18,7 @@ after, you just run the 'run_script.sh', which will create a cron job that runs 
 ```
 ./run_script.sh
 ```
+also make sure to install beautiful soup
+```
+pip3 install -r requirements.txt
+```
