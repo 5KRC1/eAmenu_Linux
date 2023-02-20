@@ -122,8 +122,6 @@ def get_meal_data(week_num, meals, monday):
     soup = BeautifulSoup(site.content, "html.parser")
     id = "ednevnik-seznam_ur_teden"
 
-    #TODO: check disliked foods => prijava/odjava
-    #TODO: how to fetch meal selected
     # get meals selected
     week_data = []  # [[meal_text | string, able_to_change | Bool, date | date]]
     for i in range(5):  # for each day of week
@@ -144,7 +142,7 @@ def get_meal_data(week_num, meals, monday):
                 if e == IndexError:
                     # no meal that day => should already be signed off
                     meal_text = ""
-                    change = False
+                    changed = False
                     day_data.append(meal_text)
                     day_data.append(changed)
                     day_data.append(day)
@@ -206,15 +204,18 @@ def prijava_odjava(session, action, meal_id, date):
         return False
 
 
-print("===start===")
 def service():
     send_mail("Service started!")
     username = config["username"]
     password = config["password"]
+
+    # login
     try:
         _login, session = login(username, password)
         if not _login.json()["status"]:
             raise CustomException("Failed to login!")
+
+        # get info (school)
         school_year, meal_ids, first_week_school = init_school_info()
         if not meal_ids:
             raise CustomException("no meal_ids")
@@ -226,6 +227,8 @@ def service():
                 meal_ids[4]: "bowl-mix-outline",
                 meal_ids[5]: "basketball"
                 }
+
+        # get dates
         today = datetime.now()
         # if weekends => getmonday fetches another week in advance = error
         if today.strftime("%w") == "0":
@@ -234,24 +237,35 @@ def service():
             today -= timedelta(days=5)
         monday = get_mon(today + timedelta(days=7))    # gets weeks in advance
         week_num = int(str((monday - first_week_school) / 7).split(" ")[0])
+
+        # get meal data
+        '''
+        get week in advance if meal_const empty
+            else get two weeks in advance
+        '''
         meals_data = get_meal_data(week_num, meals, monday)
+
         # check for disliked foods
         disliked_foods = config["disliked_foods"]
         if not disliked_foods:
             send_mail("no disliked foods")
             service()
+
+        # get preffered meal
         selected_menu = config["selected_menu"]    # if Odjava set to selected meal for the day
         selected_menu = list(meals.keys())[int(selected_menu) - 1]
-        # compare disliked foods with text
+
+        # compare disliked foods with menus
         for meal_data in meals_data:
             for disliked_food in disliked_foods:
                 if disliked_food.upper() in meal_data[0]:
+
+                    # prijava / odjava
                     success = prijava_odjava(session, "prijava", selected_menu, meal_data[2])
                     if not success:
                         prijava_odjava(session, "odjava", meal_data[3], meal_data[2])
                     break
-        # sign off or change meal if can be
-        # if changing fails still try to sign off
+
         send_mail("service did well")
         return
 
